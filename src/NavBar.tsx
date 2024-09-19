@@ -1,3 +1,5 @@
+import logo from "./logo.png";
+
 export function NavBar(params: {setSelectedQuiz: (n: number | undefined) => void}) {
     // params.setSelectedQuiz(undefined);
     return (
@@ -6,7 +8,7 @@ export function NavBar(params: {setSelectedQuiz: (n: number | undefined) => void
             <div className="relative flex h-16 items-center justify-between">
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                <img className="h-12 w-auto" src="https://cdn.discordapp.com/attachments/1285868148599427073/1285895846285807626/Harbor1.png?ex=66ebef54&is=66ea9dd4&hm=28ae68b469e272068f38f1ced21564b7cfdff51ab455a2ec3a39c11ff1faad5e&" alt="Your Company"/>
+                <img className="h-12 w-auto" src={logo} alt="Your Company"/>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                 <div className="flex space-x-4">
