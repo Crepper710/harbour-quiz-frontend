@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/NavBar.tsx","./src/Quiz.tsx","./src/Quizzes.tsx","./src/main.tsx","./src/service.ts","./src/vite-env.d.ts"],"version":"5.6.2"}
+{"root":["./src/vite-env.d.ts","./src/admin/adminapp.tsx","./src/admin/main.tsx","./src/common/navbar.tsx","./src/common/service.ts","./src/quiz/quiz.tsx","./src/quiz/quizapp.tsx","./src/quiz/quizzes.tsx","./src/quiz/main.tsx"],"version":"5.6.2"}

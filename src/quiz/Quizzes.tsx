@@ -1,8 +1,9 @@
 import {useEffect, useState} from "react";
-import { BACKEND, QuizInfo as QuizInfoModel } from "./service";
-import { Quiz } from "./Quiz";
+import { BACKEND, QuizInfo as QuizInfoModel } from "../common/service.ts";
+import { Quiz } from "./Quiz.tsx";
 
-export function Quizzes(params: {selectedQuiz: number| undefined, setSelectedQuiz: (n: number) => void}) {
+export function Quizzes() {
+    const [selectedQuiz, setSelectedQuiz] = useState<number>();
     const [quizzes, setQuizzes] = useState<QuizInfoModel[]>();
 
     useEffect(() => {
@@ -13,8 +14,8 @@ export function Quizzes(params: {selectedQuiz: number| undefined, setSelectedQui
         quizzes === undefined ? (
             <></>
         ) : (
-            params.selectedQuiz !== undefined ? (
-                <Quiz quizId={params.selectedQuiz}/>
+            selectedQuiz !== undefined ? (
+                <Quiz quizId={selectedQuiz}/>
             ) : (
                 <>
                     <h1 className="text-xl">
@@ -22,7 +23,7 @@ export function Quizzes(params: {selectedQuiz: number| undefined, setSelectedQui
                     </h1>
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                         {
-                            quizzes.map((quiz, i) => <QuizInfo key={i} quiz={quiz} setSelectedQuiz={params.setSelectedQuiz}/>)
+                            quizzes.map((quiz, i) => <QuizInfo key={i} quiz={quiz} setSelectedQuiz={setSelectedQuiz}/>)
                         }
                     </div>
                 </>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BACKEND, Question } from "./service";
+import { BACKEND, Question } from "../common/service.ts";
 
 export function Quiz(params: {quizId: number}) {
     const [questions, setQuestions] = useState<number[]>();
