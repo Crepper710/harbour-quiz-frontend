@@ -13,47 +13,49 @@ export abstract class Backend {
 }
 
 class DebugBackend extends Backend {
-    async getQuizzes(): Promise<Array<QuizInfo>> {
-        return [
+    private readonly db: [QuizInfo, Question[]][] = [
+        [
             new QuizInfo(1, "Quiz 1"),
-            new QuizInfo(2, "Quiz 2")
-        ];
+            [
+                new Question(1, "bla", ["1", "longerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "3"]),
+                new Question(2, "bla", ["right", "not right", "far off"]),
+                new Question(3, "no", ["yes", "maybe", "f off"]),
+            ]
+        ],
+        [
+            new QuizInfo(2, "Quiz 2"),
+            [
+                new Question(1, "bla", ["1", "longerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "3"]),
+                new Question(2, "bla", ["right", "not right", "far off"]),
+                new Question(3, "no", ["yes", "maybe", "f off"]),
+            ]
+        ]
+    ]
+
+    async getQuizzes(): Promise<Array<QuizInfo>> {
+        return this.db.map(([quiz]) => quiz);
     }
 
     async getQuiz(quizId: number): Promise<Array<number>> {
-        switch (quizId) {
-            case 1:
-                return [1, 2, 3];
-            case 2:
-                return [1, 2, 3];
-            default:
-                throw Error("unreachable");
+        const quiz = this.db[quizId];
+        if (quiz === undefined) {
+            throw new Error("invalid quiz id");
         }
+        return quiz[1].map((question) => question.id);
     }
 
     async getQuestion(quizId: number, questionId: number): Promise<Question> {
-        switch (quizId) {
-            case 1:
-                switch (questionId) {
-                    case 1:
-                        return new Question(1, "bla", ["1", "longerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "3"]);
-                    case 2:
-                        return new Question(2, "bla", ["right", "not right", "far off"]);
-                    case 3:
-                        return new Question(3, "no", ["yes", "maybe", "f off"]);
-                }
-                break;
-            case 2:
-                switch (questionId) {
-                    case 1:
-                        return new Question(1, "bla", ["1", "longerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "3"]);
-                    case 2:
-                        return new Question(2, "bla", ["right", "not right", "far off"]);
-                    case 3:
-                        return new Question(3, "no", ["yes", "maybe", "f off"]);
-                }
+        const quiz = this.db[quizId];
+        if (quiz === undefined) {
+            throw new Error("invalid quiz id");
         }
-        throw new Error("unreachable");
+
+        const question = quiz[1][questionId];
+        if (question === undefined) {
+            throw new Error("invalid question id");
+        }
+
+        return question
     }
 }
 
