@@ -1,15 +1,13 @@
 import {SyntheticEvent} from "react";
 
 export function Login(params: {setToken: (s: string | undefined) => void}) {
-    params.setToken(undefined);
-
     const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
         const elements = e.currentTarget.elements as HTMLFormControlsCollection & {
             username: HTMLInputElement,
             password: HTMLInputElement,
         };
-        console.log(elements.username.value, elements.password.value);
+        params.setToken(elements.username.value + ":" + elements.password.value);
     }
 
     return (

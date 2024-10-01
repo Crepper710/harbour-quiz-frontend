@@ -10,58 +10,17 @@ export abstract class Backend {
     abstract getQuizzes(): Promise<Array<QuizInfo>>
     abstract getQuiz(quizId: number): Promise<Array<number>>
     abstract getQuestion(quizId: number, questionId: number): Promise<Question>
-}
-
-class DebugBackend extends Backend {
-    private readonly db: [QuizInfo, Question[]][] = [
-        [
-            new QuizInfo(1, "Quiz 1"),
-            [
-                new Question(1, "bla", ["1", "longerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "3"]),
-                new Question(2, "bla", ["right", "not right", "far off"]),
-                new Question(3, "no", ["yes", "maybe", "f off"]),
-            ]
-        ],
-        [
-            new QuizInfo(2, "Quiz 2"),
-            [
-                new Question(1, "bla", ["1", "longerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "3"]),
-                new Question(2, "bla", ["right", "not right", "far off"]),
-                new Question(3, "no", ["yes", "maybe", "f off"]),
-            ]
-        ]
-    ]
-
-    async getQuizzes(): Promise<Array<QuizInfo>> {
-        return this.db.map(([quiz]) => quiz);
-    }
-
-    async getQuiz(quizId: number): Promise<Array<number>> {
-        const quiz = this.db[quizId];
-        if (quiz === undefined) {
-            throw new Error("invalid quiz id");
-        }
-        return quiz[1].map((question) => question.id);
-    }
-
-    async getQuestion(quizId: number, questionId: number): Promise<Question> {
-        const quiz = this.db[quizId];
-        if (quiz === undefined) {
-            throw new Error("invalid quiz id");
-        }
-
-        const question = quiz[1][questionId];
-        if (question === undefined) {
-            throw new Error("invalid question id");
-        }
-
-        return question
-    }
+    abstract createQuiz(name: string): Promise<void>
+    abstract updateQuiz(quizId: number, name: string): Promise<void>
+    abstract deleteQuiz(quizId: number): Promise<void>
+    abstract createQuestion(quizId: number, question: string, answers: string[]): Promise<void>
+    abstract updateQuestion(quizId: number, questionId: number, question: string, answers: string[]): Promise<void>
+    abstract deleteQuestion(quizId: number, questionId: number): Promise<void>
 }
 
 const BACKEND_BASE_URL = "http://localhost:8080";
 
-class RealBackend extends Backend {
+class BackendImpl extends Backend {
     async getQuizzes(): Promise<Array<QuizInfo>> {
         const resp = await fetch(BACKEND_BASE_URL + "/quiz");
         const obj = await resp.json();
@@ -91,6 +50,9 @@ class RealBackend extends Backend {
                 return obj.id;
             });
         } else {
+            if (obj === null) {
+                return [];
+            }
             throw new Error("unexpected element from the API");
         }
     }
@@ -118,6 +80,46 @@ class RealBackend extends Backend {
         }
         return new Question(obj.id, obj.question, answers);
     }
+
+    async createQuiz(name: string): Promise<undefined> {
+        await fetch(BACKEND_BASE_URL + "/quiz", {
+            method: "POST",
+            body: JSON.stringify({quiz_name: name}),
+        });
+    }
+
+    async updateQuiz(quizId: number, name: string): Promise<void> {
+        await fetch(BACKEND_BASE_URL + `/quiz/${quizId}`, {
+            method: "PUT",
+            body: JSON.stringify({quiz_name: name}),
+        });
+    }
+
+    async deleteQuiz(quizId: number): Promise<void> {
+        await fetch(BACKEND_BASE_URL + `/quiz/${quizId}`, {
+            method: "DELETE",
+        });
+    }
+
+    async createQuestion(quizId: number, question: string, answers: string[]): Promise<void> {
+        await fetch(BACKEND_BASE_URL + `/quiz/${quizId}/question`, {
+            method: "POST",
+            body: JSON.stringify({question, answers}),
+        })
+    }
+
+    async updateQuestion(quizId: number, questionId: number, question: string, answers: string[]): Promise<void> {
+        await fetch(BACKEND_BASE_URL + `/quiz/${quizId}/question/${questionId}`, {
+            method: "PUT",
+            body: JSON.stringify({question, answers}),
+        })
+    }
+
+    async deleteQuestion(quizId: number, questionId: number): Promise<void> {
+        await fetch(BACKEND_BASE_URL + `/quiz/${quizId}/question/${questionId}`, {
+            method: "DELETE",
+        })
+    }
 }
 
-export const BACKEND: Backend = import.meta.env.PROD ? new RealBackend() : new DebugBackend();
+export const BACKEND: Backend = new BackendImpl();

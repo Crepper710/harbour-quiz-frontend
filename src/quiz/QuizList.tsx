@@ -1,33 +1,29 @@
 import {useEffect, useState} from "react";
 import { BACKEND, QuizInfo as QuizInfoModel } from "../common/service.ts";
-import { Quiz } from "./Quiz.tsx";
 
-export function Quizzes() {
-    const [selectedQuiz, setSelectedQuiz] = useState<number>();
+export function QuizList(params: {onSelect: (n: number) => void}) {
     const [quizzes, setQuizzes] = useState<QuizInfoModel[]>();
 
     useEffect(() => {
-        BACKEND.getQuizzes().then(setQuizzes)
-    }, []);
+        if (quizzes === undefined) {
+            BACKEND.getQuizzes().then(setQuizzes);
+        }
+    }, [quizzes]);
 
     return (
         quizzes === undefined ? (
             <></>
         ) : (
-            selectedQuiz !== undefined ? (
-                <Quiz quizId={selectedQuiz}/>
-            ) : (
-                <>
-                    <h1 className="text-xl">
-                        Select one of the quizzes below:
-                    </h1>
-                    <div className="grid grid-cols-1 lg:grid-cols-2">
-                        {
-                            quizzes.map((quiz, i) => <QuizInfo key={i} quiz={quiz} setSelectedQuiz={setSelectedQuiz}/>)
-                        }
-                    </div>
-                </>
-            )
+            <>
+                <h1 className="text-xl">
+                    Select one of the quizzes below:
+                </h1>
+                <div className="grid grid-cols-1 lg:grid-cols-2">
+                    {
+                        quizzes.map((quiz, i) => <QuizInfo key={i} quiz={quiz} setSelectedQuiz={params.onSelect}/>)
+                    }
+                </div>
+            </>
         )
     );
 }
