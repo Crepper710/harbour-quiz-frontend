@@ -1,12 +1,16 @@
-import {SyntheticEvent, useEffect, useState} from "react";
-import { BACKEND } from "../common/service.ts";
+import {useEffect, useState} from "react";
+import {BACKEND} from "../common/service.ts";
 import {Question} from "./Question.tsx";
+import {IDetectedBarcode, Scanner} from "@yudiel/react-qr-scanner";
+
+const CODE_PATTERN = /^(?<quizId>\d+):(?<questionId>\d+)$/;
 
 export function Quiz(props: { quizId: number }) {
     const [questions, setQuestions] = useState<number[]>();
     const [score, setScore] = useState(0);
     const [questionId, setQuestionId] = useState<number>();
     const [answeredQuestions, setAnsweredQuestions] = useState<(undefined | boolean)[]>();
+    const [isScanning, setIsScanning] = useState(false);
 
     useEffect(() => {
         BACKEND.getQuiz(props.quizId).then(setQuestions);
@@ -46,40 +50,50 @@ export function Quiz(props: { quizId: number }) {
         }
     };
 
-    const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const elements = e.currentTarget.elements as HTMLFormControlsCollection & {
-            questionId: HTMLInputElement,
-        };
-        const value = Number(elements.questionId.value);
+    const handleScan = (scannedCodes: IDetectedBarcode[]) => {
+        if (scannedCodes.length >= 0) {
+            const match = CODE_PATTERN[Symbol.match](scannedCodes[0].rawValue);
+            if (match === null) {
+                return;
+            }
+            const groups = match.groups as {
+                quizId: string;
+                questionId: string;
+            }
 
-        const i = questions?.indexOf(value);
+            const quizId = Number(groups.quizId);
+            const questionId = Number(groups.questionId);
 
-        if (!isFinite(value) || i === undefined || i === -1) {
-            alert("Please input a valid id");
-            return;
+            if (quizId !== props.quizId) {
+                alert("QR-Code for the wrong quiz!");
+            }
+
+            const i = questions?.indexOf(questionId);
+            if (!isFinite(questionId) || i === undefined || i === -1) {
+                alert("Please input a valid id");
+                return;
+            }
+
+            if (answeredQuestions === undefined || answeredQuestions[i] === true) {
+                alert("Question already answered");
+                return;
+            }
+
+            setQuestionId(questionId);
+            setIsScanning(false);
         }
-
-        if (answeredQuestions === undefined || answeredQuestions[i] === true) {
-            alert("Question already answered");
-            return;
-        }
-
-        setQuestionId(value);
-    }
+    };
 
     if (questions === undefined || answeredQuestions === undefined) {
         return <></>;
     }
+
     const answeredQuestionsCount = answeredQuestions.filter(s => s === true).length;
 
     if (questionId !== undefined) {
         return (
             <>
-                <div className="flex">
-                    <div>
-                        Question {answeredQuestionsCount + 1} / {questions.length}
-                    </div>
+                <div className="flex justify-end">
                     {answeredQuestionsCount !== 0 && (
                         <>
                             <div className="mx-auto"></div>
@@ -104,11 +118,17 @@ export function Quiz(props: { quizId: number }) {
         );
     }
 
+    if (isScanning) {
+        return (
+            <Scanner onScan={handleScan} onError={console.error} />
+        );
+    }
+
     return (
-        <form className="flex" onSubmit={handleSubmit}>
-            <label>Please Enter a QuestionId ({questions.filter((_, i) => answeredQuestions[i] === undefined)}, {answeredQuestions})</label>
-            <input type="number" id="questionId"/>
-            <input type="submit"/>
-        </form>
+        <div className="flex flex-col my-2">
+            <button className="bg-blue-600 text-white p-1 rounded-md px-10" onClick={() => setIsScanning(true)}>
+                Scan QR-Code
+            </button>
+        </div>
     );
 }

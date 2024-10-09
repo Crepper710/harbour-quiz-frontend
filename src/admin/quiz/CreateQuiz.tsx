@@ -20,9 +20,9 @@ export function CreateQuiz(props: {reload: () => void}) {
     }
 
     return (
-        <form className={"flex flex-row"} onSubmit={onSubmit}>
-            <input className="bg-slate-300 p-1 rounded-md m-2" type="text" id="name" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)}/>
-            <input className="m-2 bg-blue-600 text-white p-1 rounded-md px-10" type="submit" value="Create a new quiz"/>
+        <form className={"grid sm:grid-cols-2 gap-2 my-2"} onSubmit={onSubmit}>
+            <input className="bg-slate-300 p-1 rounded-md" type="text" id="name" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)}/>
+            <input className="bg-blue-600 text-white p-1 rounded-md px-10" type="submit" value="Create a new quiz"/>
         </form>
     )
 }

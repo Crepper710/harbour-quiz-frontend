@@ -20,7 +20,7 @@ export function AdminApp() {
                                 quiz === undefined ? (
                                     <QuizList onSelect={setQuiz}/>
                                 ) : (
-                                    <EditQuiz quiz={quiz}/>
+                                    <EditQuiz quiz={quiz} exit={() => setQuiz(undefined)}/>
                                 )
                             }
                         </div>

@@ -1,7 +1,9 @@
 import {SyntheticEvent, useEffect, useState} from "react";
 import {BACKEND, Question as QuestionModel, QuizInfo} from "../../common/service.ts";
+import {toDataURL} from "qrcode";
+import {saveAs} from "file-saver";
 
-export function EditQuiz(props: {quiz: number}) {
+export function EditQuiz(props: {quiz: number, exit: () => void}) {
     const [quiz, setQuiz] = useState<QuizInfo>();
     const [questionIds, setQuestionIds] = useState<number[]>();
     const [questions, setQuestions] = useState<QuestionModel[]>();
@@ -77,14 +79,17 @@ export function EditQuiz(props: {quiz: number}) {
 
     return (
         <>
-            <form className="flex gap-2 my-2" onSubmit={onSubmitName}>
-                <input className="w-1/3 bg-slate-300 p-1 rounded-md" type="text" id="name" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)}/>
-                <input className="w-1/3 bg-blue-600 text-white p-1 rounded-md px-10" type="submit" value="Update name"/>
-                <button className="w-1/3 bg-blue-600 text-white p-1 rounded-md px-10" onClick={(e) => {
+            <form className="grid sm:grid-cols-2 gap-2 my-2" onSubmit={onSubmitName}>
+                <input className="bg-slate-300 p-1 rounded-md" type="text" id="name" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)}/>
+                <input className="bg-blue-600 text-white p-1 rounded-md px-10" type="submit" value="Update name"/>
+                <button className="bg-blue-600 text-white p-1 rounded-md px-10" onClick={(e) => {
                     e.preventDefault();
                     BACKEND.createQuestion(props.quiz, "", ["", ""]).then(reload);
                 }}>
                     Add a new question
+                </button>
+                <button className="bg-blue-600 text-white p-1 rounded-md px-10" onClick={props.exit}>
+                    Back to quiz selection
                 </button>
             </form>
             <div className="flex flex-col gap-2">
@@ -138,29 +143,39 @@ function Question(props: {quizId: number, question: QuestionModel, reload: () =>
                     )
                 })
             }
-            <div className="flex gap-2">
-                <button className="w-1/2 bg-blue-600 text-white p-1 rounded-md" onClick={(e) => {
+            <div className="grid grid-cols-2 gap-2">
+                <button className="bg-blue-600 text-white p-1 rounded-md" onClick={(e) => {
                     e.preventDefault();
                     setAnswers((prev) => [...prev, ""]);
                 }}>
                     Add an answer
                 </button>
-                <button className={"w-1/2 text-white p-1 rounded-md " + (answers.length <= 2 ? " bg-slate-400" : "bg-blue-600")} onClick={(e) => {
-                    e.preventDefault();
-                    setAnswers((prev) => prev.slice(0, prev.length - 1));
-                }} disabled={answers.length <= 2}>
+                <button
+                    className={"text-white p-1 rounded-md " + (answers.length <= 2 ? " bg-slate-400" : "bg-blue-600")}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        setAnswers((prev) => prev.slice(0, prev.length - 1));
+                    }} disabled={answers.length <= 2}>
                     Remove an answer
                 </button>
-            </div>
-            <div className="flex gap-2">
-                <input className="w-1/2 bg-blue-600 text-white p-1 rounded-md" type="submit" value="Save"/>
-                <button className="w-1/2 bg-blue-600 text-white p-1 rounded-md" onClick={(e) => {
+                <input className="bg-blue-600 text-white p-1 rounded-md" type="submit" value="Save"/>
+                <button className="bg-blue-600 text-white p-1 rounded-md" onClick={(e) => {
                     e.preventDefault();
                     if (confirm(`Are you sure you want to delete this quiz? (${props.question.question})`)) {
                         BACKEND.deleteQuestion(props.quizId, props.question.id).then(props.reload);
                     }
                 }}>
                     Delete
+                </button>
+                <button className="bg-blue-600 text-white p-1 rounded-md" onClick={(e) => {
+                    e.preventDefault();
+                    toDataURL(`${String(props.quizId).padStart(4, "0")}:${String(props.question.id).padStart(4, "0")}`, {
+                        errorCorrectionLevel: "high"
+                    }).then((url) => {
+                        saveAs(url, `quiz_${props.quizId}_question_${props.question.id}`)
+                    })
+                }}>
+                    Download QR-Code
                 </button>
             </div>
         </form>
