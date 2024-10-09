@@ -1,13 +1,28 @@
-import {SyntheticEvent} from "react";
+import {SyntheticEvent, useState} from "react";
+import {BACKEND} from "../common/service.ts";
 
-export function Login(params: {setToken: (s: string | undefined) => void}) {
+export function Login(props: {setToken: (s: string | undefined) => void}) {
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+
     const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
         const elements = e.currentTarget.elements as HTMLFormControlsCollection & {
             username: HTMLInputElement,
             password: HTMLInputElement,
         };
-        params.setToken(elements.username.value + ":" + elements.password.value);
+        setIsLoggingIn(true);
+        BACKEND.login(elements.username.value, elements.password.value).then((token) => {
+            props.setToken(token);
+        }).catch((err) => {
+            console.error(err);
+            setIsLoggingIn(false);
+        });
+    }
+
+    if (isLoggingIn) {
+        return (
+            <></>
+        );
     }
 
     return (

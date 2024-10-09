@@ -1,13 +1,15 @@
-import {SyntheticEvent, useEffect, useState} from "react";
+import {SyntheticEvent, useContext, useEffect, useState} from "react";
 import {BACKEND, Question as QuestionModel, QuizInfo} from "../../common/service.ts";
 import {toDataURL} from "qrcode";
 import {saveAs} from "file-saver";
+import {AuthContext} from "../AuthContext.ts";
 
 export function EditQuiz(props: {quiz: number, exit: () => void}) {
     const [quiz, setQuiz] = useState<QuizInfo>();
     const [questionIds, setQuestionIds] = useState<number[]>();
     const [questions, setQuestions] = useState<QuestionModel[]>();
     const [name, setName] = useState("");
+    const token = useContext(AuthContext);
 
     useEffect(() => {
         if (quiz === undefined) {
@@ -58,7 +60,7 @@ export function EditQuiz(props: {quiz: number, exit: () => void}) {
             alert("you should put a name in the text box to the right of this button!");
             return;
         }
-        BACKEND.updateQuiz(props.quiz, elements.name.value).then(() => {});
+        BACKEND.updateQuiz(props.quiz, elements.name.value, token).then(() => {});
     }
 
     const reload = () => {
@@ -84,7 +86,7 @@ export function EditQuiz(props: {quiz: number, exit: () => void}) {
                 <input className="bg-blue-600 text-white p-1 rounded-md px-10" type="submit" value="Update name"/>
                 <button className="bg-blue-600 text-white p-1 rounded-md px-10" onClick={(e) => {
                     e.preventDefault();
-                    BACKEND.createQuestion(props.quiz, "", ["", ""]).then(reload);
+                    BACKEND.createQuestion(props.quiz, "", ["", ""], token).then(reload);
                 }}>
                     Add a new question
                 </button>
@@ -104,6 +106,7 @@ export function EditQuiz(props: {quiz: number, exit: () => void}) {
 function Question(props: {quizId: number, question: QuestionModel, reload: () => void}) {
     const [question, setQuestion] = useState("");
     const [answers, setAnswers] = useState(["", ""]);
+    const token = useContext(AuthContext);
 
     useEffect(() => {
         setQuestion(props.question.question)
@@ -116,7 +119,7 @@ function Question(props: {quizId: number, question: QuestionModel, reload: () =>
     return (
         <form className="flex flex-col gap-2 bg-slate-200 p-2 rounded-lg" onSubmit={(e) => {
             e.preventDefault();
-            BACKEND.updateQuestion(props.quizId, props.question.id, question, answers).then(props.reload);
+            BACKEND.updateQuestion(props.quizId, props.question.id, question, answers, token).then(props.reload);
         }}>
             <label htmlFor="question"> Question:</label>
             <input
@@ -162,7 +165,7 @@ function Question(props: {quizId: number, question: QuestionModel, reload: () =>
                 <button className="bg-blue-600 text-white p-1 rounded-md" onClick={(e) => {
                     e.preventDefault();
                     if (confirm(`Are you sure you want to delete this quiz? (${props.question.question})`)) {
-                        BACKEND.deleteQuestion(props.quizId, props.question.id).then(props.reload);
+                        BACKEND.deleteQuestion(props.quizId, props.question.id, token).then(props.reload);
                     }
                 }}>
                     Delete

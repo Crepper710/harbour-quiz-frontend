@@ -10,12 +10,13 @@ export abstract class Backend {
     abstract getQuizzes(): Promise<Array<QuizInfo>>
     abstract getQuiz(quizId: number): Promise<Array<number>>
     abstract getQuestion(quizId: number, questionId: number): Promise<Question>
-    abstract createQuiz(name: string): Promise<void>
-    abstract updateQuiz(quizId: number, name: string): Promise<void>
-    abstract deleteQuiz(quizId: number): Promise<void>
-    abstract createQuestion(quizId: number, question: string, answers: string[]): Promise<void>
-    abstract updateQuestion(quizId: number, questionId: number, question: string, answers: string[]): Promise<void>
-    abstract deleteQuestion(quizId: number, questionId: number): Promise<void>
+    abstract createQuiz(name: string, token: string): Promise<void>
+    abstract updateQuiz(quizId: number, name: string, token: string): Promise<void>
+    abstract deleteQuiz(quizId: number, token: string): Promise<void>
+    abstract createQuestion(quizId: number, question: string, answers: string[], token: string): Promise<void>
+    abstract updateQuestion(quizId: number, questionId: number, question: string, answers: string[], token: string): Promise<void>
+    abstract deleteQuestion(quizId: number, questionId: number, token: string): Promise<void>
+    abstract login(username: string, password: string): Promise<string>
 }
 
 const BACKEND_BASE_URL = "http://localhost:8080";
@@ -81,44 +82,73 @@ class BackendImpl extends Backend {
         return new Question(obj.id, obj.question, answers);
     }
 
-    async createQuiz(name: string): Promise<undefined> {
+    async createQuiz(name: string, token: string): Promise<undefined> {
         await fetch(BACKEND_BASE_URL + "/quiz", {
             method: "POST",
             body: JSON.stringify({quiz_name: name}),
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
         });
     }
 
-    async updateQuiz(quizId: number, name: string): Promise<void> {
+    async updateQuiz(quizId: number, name: string, token: string): Promise<void> {
         await fetch(BACKEND_BASE_URL + `/quiz/${quizId}`, {
             method: "PUT",
             body: JSON.stringify({quiz_name: name}),
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
         });
     }
 
-    async deleteQuiz(quizId: number): Promise<void> {
+    async deleteQuiz(quizId: number, token: string): Promise<void> {
         await fetch(BACKEND_BASE_URL + `/quiz/${quizId}`, {
             method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
         });
     }
 
-    async createQuestion(quizId: number, question: string, answers: string[]): Promise<void> {
+    async createQuestion(quizId: number, question: string, answers: string[], token: string): Promise<void> {
         await fetch(BACKEND_BASE_URL + `/quiz/${quizId}/question`, {
             method: "POST",
             body: JSON.stringify({question, answers}),
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
         })
     }
 
-    async updateQuestion(quizId: number, questionId: number, question: string, answers: string[]): Promise<void> {
+    async updateQuestion(quizId: number, questionId: number, question: string, answers: string[], token: string): Promise<void> {
         await fetch(BACKEND_BASE_URL + `/quiz/${quizId}/question/${questionId}`, {
             method: "PUT",
             body: JSON.stringify({question, answers}),
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
         })
     }
 
-    async deleteQuestion(quizId: number, questionId: number): Promise<void> {
+    async deleteQuestion(quizId: number, questionId: number, token: string): Promise<void> {
         await fetch(BACKEND_BASE_URL + `/quiz/${quizId}/question/${questionId}`, {
             method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
         })
+    }
+
+    async login(username: string, password: string): Promise<string> {
+        const resp = await fetch(BACKEND_BASE_URL + "/login", {
+            method: "POST",
+            body: JSON.stringify({username, password}),
+        });
+        if (resp.status !== 200) {
+            throw new Error("login failed");
+        }
+        return await resp.text();
     }
 }
 

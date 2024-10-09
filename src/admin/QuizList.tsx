@@ -1,6 +1,7 @@
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import { BACKEND, QuizInfo as QuizInfoModel } from "../common/service.ts";
 import {CreateQuiz} from "./quiz/CreateQuiz.tsx";
+import {AuthContext} from "./AuthContext.ts";
 
 export function QuizList(params: {onSelect: (n: number) => void}) {
     const [quizzes, setQuizzes] = useState<QuizInfoModel[]>();
@@ -31,9 +32,11 @@ export function QuizList(params: {onSelect: (n: number) => void}) {
 }
 
 function QuizInfo(params: {quiz: QuizInfoModel, setSelectedQuiz: (n: number) => void, reload: () => void}) {
+    const token = useContext(AuthContext);
+
     const handleDelete = () => {
         if (confirm(`Are you sure you want to delete this quiz? (${params.quiz.name})`)) {
-            BACKEND.deleteQuiz(params.quiz.id).then(params.reload);
+            BACKEND.deleteQuiz(params.quiz.id, token).then(params.reload);
         }
     }
 

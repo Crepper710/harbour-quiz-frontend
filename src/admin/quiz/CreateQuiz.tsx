@@ -1,8 +1,10 @@
-import {SyntheticEvent, useState} from "react";
+import {SyntheticEvent, useContext, useState} from "react";
 import {BACKEND} from "../../common/service.ts";
+import {AuthContext} from "../AuthContext.ts";
 
 export function CreateQuiz(props: {reload: () => void}) {
     const [name, setName] = useState("");
+    const token = useContext(AuthContext);
 
     const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -13,7 +15,7 @@ export function CreateQuiz(props: {reload: () => void}) {
             alert("you should put a name in the text box to the right of this button!");
             return;
         }
-        BACKEND.createQuiz(elements.name.value).then(() => {
+        BACKEND.createQuiz(elements.name.value, token).then(() => {
             setName("");
             props.reload();
         });
