@@ -14,7 +14,7 @@ export function QuizApp() {
                     selectedQuiz === undefined ? (
                         <QuizList onSelect={setSelectedQuiz}/>
                     ) : (
-                        <LobbySelection>
+                        <LobbySelection quizId={selectedQuiz}>
                             <Quiz quizId={selectedQuiz}/>
                         </LobbySelection>
                     )

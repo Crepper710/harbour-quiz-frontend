@@ -17,8 +17,8 @@ export abstract class Backend {
     abstract updateQuestion(quizId: number, questionId: number, question: string, answers: string[], token: string): Promise<void>
     abstract deleteQuestion(quizId: number, questionId: number, token: string): Promise<void>
     abstract login(username: string, password: string): Promise<string>
-    abstract createLobby(username: string): Promise<string>
-    abstract joinLobby(username: string, lobbyId: string): Promise<string>
+    abstract createLobby(username: string, quizId: number): Promise<string>
+    abstract joinLobby(username: string, lobbyId: string, quizId: number): Promise<string>
     abstract addPoint(username: string, lobbyId: string): Promise<void>
     abstract getRank(lobbyId: string): Promise<Map<string, number>>
 }
@@ -155,21 +155,92 @@ class BackendImpl extends Backend {
         return await resp.text();
     }
 
-    addPoint(username: string, lobbyId: string): Promise<void> {
-        return Promise.resolve(undefined);
+    async addPoint(username: string, lobbyId: string): Promise<void> {
+        await fetch(BACKEND_BASE_URL + "/addPoints", {
+            method: "POST",
+            body: JSON.stringify({
+                name: username,
+                code: lobbyId,
+                points: 1
+            })
+        });
     }
 
-    createLobby(username: string): Promise<string> {
+    async createLobby(username: string, quizId: number): Promise<string> {
+        const resp = await fetch(BACKEND_BASE_URL + "/create", {
+            method: "POST",
+            body: JSON.stringify({
+                name: username,
+                quiz: quizId.toString(),
+            })
+        });
 
-        return Promise.resolve("");
+        if (resp.status !== 200) {
+            throw new Error("error when creating a lobby");
+        }
+
+        const obj = await resp.json();
+        const code = obj.code;
+
+        if (typeof code !== "string") {
+            throw new Error("response did not contain a code");
+        }
+
+        return code;
     }
 
-    getRank(lobbyId: string): Promise<Map<string, number>> {
-        return Promise.resolve(new Map());
+    async getRank(lobbyId: string): Promise<Map<string, number>> {
+        const resp = await fetch(BACKEND_BASE_URL + `/ranking/${lobbyId}`);
+
+        const obj = await resp.json();
+
+        if (!Array.isArray(obj)) {
+            throw new Error("response did not contain a valid lobby");
+        }
+
+        return new Map(obj.map((obj) => {
+            const {name, points} = obj;
+
+            if (typeof name !== "string") {
+                throw new Error("response did not contain a valid lobby");
+            }
+
+            if (typeof points !== "number") {
+                throw new Error("response did not contain a valid lobby");
+            }
+
+            return [name, points];
+        }));
     }
 
-    joinLobby(username: string, lobbyId: string): Promise<string> {
-        return Promise.resolve("");
+    async joinLobby(username: string, lobbyId: string, quizId: number): Promise<string> {
+        const resp = await fetch(BACKEND_BASE_URL + "/join", {
+            method: "POST",
+            body: JSON.stringify({
+                name: username,
+                code: lobbyId,
+                quiz: quizId.toString(),
+            })
+        });
+
+        if (resp.status !== 200) {
+            throw new Error("The supplied lobby ID is invalid");
+        }
+
+        const obj = await resp.json();
+        const code = obj.code;
+
+        if (typeof code !== "string") {
+            const message = obj.message;
+
+            if (typeof message !== "string") {
+                throw new Error("An unknown error occurred when joining the lobby");
+            }
+
+            throw new Error(message);
+        }
+
+        return code;
     }
 }
 
