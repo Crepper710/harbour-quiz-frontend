@@ -45,12 +45,12 @@ function QuizInfo(params: {quiz: QuizInfoModel, setSelectedQuiz: (n: number) => 
             <div className="text-lg">
                 {params.quiz.name}
             </div>
-            <div className="flex gap-2">
-                <button className="bg-blue-700 text-white rounded-lg w-1/2 py-1 mt-1"
+            <div className="flex flex-col gap-2">
+                <button className="button"
                         onClick={() => params.setSelectedQuiz(params.quiz.id)}>
                     Edit
                 </button>
-                <button className="bg-blue-700 text-white rounded-lg w-1/2 py-1 mt-1"
+                <button className="button"
                         onClick={handleDelete}>
                     Delete
                 </button>

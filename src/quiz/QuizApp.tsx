@@ -2,6 +2,7 @@ import {NavBar} from "../common/NavBar.tsx";
 import {QuizList} from "./QuizList.tsx";
 import {useState} from "react";
 import {Quiz} from "./Quiz.tsx";
+import {LobbySelection} from "./LobbySelection.tsx";
 
 export function QuizApp() {
     const [selectedQuiz, setSelectedQuiz] = useState<number>();
@@ -13,7 +14,9 @@ export function QuizApp() {
                     selectedQuiz === undefined ? (
                         <QuizList onSelect={setSelectedQuiz}/>
                     ) : (
-                        <Quiz quizId={selectedQuiz}/>
+                        <LobbySelection>
+                            <Quiz quizId={selectedQuiz}/>
+                        </LobbySelection>
                     )
                 }
             </div>

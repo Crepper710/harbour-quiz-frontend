@@ -30,11 +30,11 @@ export function QuizList(params: {onSelect: (n: number) => void}) {
 
 function QuizInfo(params: {quiz: QuizInfoModel, setSelectedQuiz: (n: number) => void}) {
     return (
-        <div className="rounded-lg bg-slate-200 p-2 m-2">
+        <div className="flex flex-col rounded-lg bg-slate-200 p-2 m-2 gap-2">
             <div className="text-lg">
                 {params.quiz.name}
             </div>
-            <button className="bg-blue-700 text-white rounded-lg px-10 py-1 mt-1" onClick={() => params.setSelectedQuiz(params.quiz.id)}>
+            <button className="button" onClick={() => params.setSelectedQuiz(params.quiz.id)}>
                 Select
             </button>
         </div>

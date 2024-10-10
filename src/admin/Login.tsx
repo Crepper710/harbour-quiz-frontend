@@ -27,12 +27,12 @@ export function Login(props: {setToken: (s: string | undefined) => void}) {
 
     return (
         <div className="container mx-auto">
-            <form className="flex flex-col mt-4 mx-10 sm:w-1/2 sm:mx-auto" onSubmit={onSubmit}>
+            <form className="flex flex-col mt-4 mx-10 sm:w-1/2 sm:mx-auto gap-2" onSubmit={onSubmit}>
                 <label htmlFor="username">Username:</label>
-                <input id="username" type="text" className="bg-slate-300 p-1 rounded-md"/>
-                <label htmlFor="password" className="mt-2">Password:</label>
-                <input id="password" type="password" className="bg-slate-300 p-1 rounded-md"/>
-                <input type="submit" className="mt-2 bg-blue-600 text-white p-1 rounded-md"/>
+                <input id="username" type="text" className="text-field -mt-2"/>
+                <label htmlFor="password">Password:</label>
+                <input id="password" type="password" className="text-field -mt-2"/>
+                <input type="submit" className="button"/>
             </form>
         </div>
     )

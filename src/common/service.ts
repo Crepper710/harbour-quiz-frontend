@@ -17,6 +17,10 @@ export abstract class Backend {
     abstract updateQuestion(quizId: number, questionId: number, question: string, answers: string[], token: string): Promise<void>
     abstract deleteQuestion(quizId: number, questionId: number, token: string): Promise<void>
     abstract login(username: string, password: string): Promise<string>
+    abstract createLobby(username: string): Promise<string>
+    abstract joinLobby(username: string, lobbyId: string): Promise<string>
+    abstract addPoint(username: string, lobbyId: string): Promise<void>
+    abstract getRank(lobbyId: string): Promise<Map<string, number>>
 }
 
 const BACKEND_BASE_URL = "http://localhost:8080";
@@ -149,6 +153,23 @@ class BackendImpl extends Backend {
             throw new Error("login failed");
         }
         return await resp.text();
+    }
+
+    addPoint(username: string, lobbyId: string): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    createLobby(username: string): Promise<string> {
+
+        return Promise.resolve("");
+    }
+
+    getRank(lobbyId: string): Promise<Map<string, number>> {
+        return Promise.resolve(new Map());
+    }
+
+    joinLobby(username: string, lobbyId: string): Promise<string> {
+        return Promise.resolve("");
     }
 }
 

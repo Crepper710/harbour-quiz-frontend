@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .button {
+        @apply bg-blue-700 text-white rounded-lg px-10 py-1;
+    }
+
+    .text-field {
+        @apply bg-slate-300 p-1 rounded-md;
+    }
+}

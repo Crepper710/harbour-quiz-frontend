@@ -128,7 +128,7 @@ export function Quiz(props: { quizId: number }) {
 
     return (
         <div className="flex flex-col my-2">
-            <button className="bg-blue-600 text-white p-1 rounded-md px-10" onClick={() => setIsScanning(true)}>
+            <button className="button" onClick={() => setIsScanning(true)}>
                 Scan QR-Code
             </button>
         </div>
