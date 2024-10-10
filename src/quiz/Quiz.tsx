@@ -120,7 +120,9 @@ export function Quiz(props: { quizId: number }) {
 
     if (isScanning) {
         return (
-            <Scanner onScan={handleScan} onError={console.error} />
+            <Scanner onScan={handleScan} onError={console.error} constraints={{
+                height: 100,
+            }}/>
         );
     }
 
