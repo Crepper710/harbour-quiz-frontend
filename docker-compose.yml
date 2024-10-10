@@ -1,0 +1,10 @@
+services:
+  harbour_quiz_frontend:
+    image: harbour_quiz_frontend
+
+    ports:
+      - "8000:80"
+
+    build:
+      context: ./
+      dockerfile: Dockerfile
