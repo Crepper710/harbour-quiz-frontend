@@ -1,7 +1,8 @@
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {BACKEND} from "../common/service.ts";
 import {Question} from "./Question.tsx";
 import {IDetectedBarcode, Scanner} from "@yudiel/react-qr-scanner";
+import {LobbyContext} from "./LobbyContext.ts";
 
 const CODE_PATTERN = /^(?<quizId>\d+):(?<questionId>\d+)$/;
 
@@ -11,6 +12,7 @@ export function Quiz(props: { quizId: number }) {
     const [questionId, setQuestionId] = useState<number>();
     const [answeredQuestions, setAnsweredQuestions] = useState<(undefined | boolean)[]>();
     const [isScanning, setIsScanning] = useState(false);
+    const lobby = useContext(LobbyContext);
 
     useEffect(() => {
         BACKEND.getQuiz(props.quizId).then(setQuestions);
@@ -46,6 +48,9 @@ export function Quiz(props: { quizId: number }) {
         }
 
         if (correct) {
+            if (lobby !== undefined) {
+                BACKEND.addPoint(lobby.name, lobby.id).then();
+            }
             setScore((old) => old + 1);
         }
     };
@@ -110,11 +115,7 @@ export function Quiz(props: { quizId: number }) {
 
     if (questions.length === answeredQuestionsCount) {
         return (
-            <div className="flex">
-                <div className="text-2xl mx-auto mt-10">
-                    Score {(Math.round(score / answeredQuestionsCount * 1000) / 10).toLocaleString()}%
-                </div>
-            </div>
+            <ScoreDisplay total={answeredQuestionsCount} score={score}/>
         );
     }
 
@@ -133,4 +134,52 @@ export function Quiz(props: { quizId: number }) {
             </button>
         </div>
     );
+}
+
+function ScoreDisplay(props: {total: number, score: number}) {
+    const [points, setPoints] = useState<Map<string, number>>();
+    const lobby = useContext(LobbyContext);
+
+    useEffect(() => {
+        if (lobby !== undefined && points === undefined) {
+            BACKEND.getRank(lobby.id).then(setPoints)
+        }
+    }, [lobby, points]);
+
+    const displayScore = (score: number) => {
+        return `${(Math.round(score / props.total * 1000) / 10).toLocaleString()}%`
+    }
+
+    if (lobby === undefined) {
+        return (
+            <div className="flex">
+                <div className="text-2xl mx-auto mt-10">
+                    Score {displayScore(props.score)}%
+                </div>
+            </div>
+        );
+    }
+
+    if (points === undefined) {
+        return <></>;
+    }
+
+    return (
+        <div className="grid grid-cols-2 gap-2">
+            <div className="underline">Player</div>
+            <div className="underline">Score</div>
+            {
+                Array.from(points, a => a).sort((a1, a2) => a2[1] - a1[1]).map(([name, points]) => {
+                    const classes = lobby.name === name ? "font-bold" : "";
+
+                    return (
+                        <>
+                            <div className={classes} children={name}/>
+                            <div className={classes} children={displayScore(points)}/>
+                        </>
+                    );
+                })
+            }
+        </div>
+    )
 }
