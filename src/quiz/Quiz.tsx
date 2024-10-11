@@ -98,7 +98,8 @@ export function Quiz(props: { quizId: number }) {
     if (questionId !== undefined) {
         return (
             <>
-                <div className="flex justify-end">
+                <div className={"flex" + (lobby !== undefined ? " justify-end" : "")}>
+                    {lobby !== undefined ? `Lobby: ${lobby.id}` : ""}
                     {answeredQuestionsCount !== 0 && (
                         <>
                             <div className="mx-auto"></div>
@@ -128,7 +129,16 @@ export function Quiz(props: { quizId: number }) {
     }
 
     return (
-        <div className="flex flex-col my-2">
+        <div className="flex flex-col my-2 gap-4">
+            {
+                lobby !== undefined ? (
+                    <div>
+                        Lobby: {lobby.id}
+                    </div>
+                ) : (
+                    <></>
+                )
+            }
             <button className="button" onClick={() => setIsScanning(true)}>
                 Scan QR-Code
             </button>
@@ -154,7 +164,7 @@ function ScoreDisplay(props: {total: number, score: number}) {
         return (
             <div className="flex">
                 <div className="text-2xl mx-auto mt-10">
-                    Score {displayScore(props.score)}%
+                    Score {displayScore(props.score)}
                 </div>
             </div>
         );
@@ -166,6 +176,9 @@ function ScoreDisplay(props: {total: number, score: number}) {
 
     return (
         <div className="grid grid-cols-2 gap-2">
+            <button className="button col-span-2" onClick={() => setPoints(undefined)}>
+                Refresh Leaderboard
+            </button>
             <div className="underline">Player</div>
             <div className="underline">Score</div>
             {
